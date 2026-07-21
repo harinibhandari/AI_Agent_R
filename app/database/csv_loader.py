@@ -57,6 +57,9 @@ def load_csv(csv_source) -> pd.DataFrame:
 
         return df
 
+    except FileNotFoundError:
+        raise
+
     except pd.errors.EmptyDataError:
         raise ValueError("CSV contains no data.")
 

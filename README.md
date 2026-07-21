@@ -1,6 +1,6 @@
 # 🤖 AI CSV Data Q&A Agent
 
-Ask natural language questions about any CSV dataset and get accurate, computation-backed answers — powered by **Groq Llama 3.3 70B** and **DuckDB**.
+Ask natural language questions about any CSV dataset and get accurate, computation-backed answers — powered by **Groq (OpenAI GPT-OSS 120B)** and **DuckDB**.
 
 No hallucinated numbers. Every answer is derived from a real SQL query executed against your actual data.
 
@@ -11,12 +11,13 @@ No hallucinated numbers. Every answer is derived from a real SQL query executed 
 - 📂 Upload any CSV file (via CLI or Streamlit web UI)
 - 🧠 Automatic schema detection
 - 💡 AI-generated sample questions based on your dataset
-- 🗣️ Natural language → SQL translation using Groq Llama 3.3
+- 🗣️ Natural language → SQL translation using Groq
 - 🔒 Strict SQL validation — only safe, read-only `SELECT` queries are allowed
 - ⚡ Fast in-memory query execution with DuckDB
 - 📝 Business-friendly natural language answers generated from real query results
 - 📊 Interactive result tables with CSV export (Streamlit UI)
 - 🗂️ Automatic JSON logging of every question, SQL, answer, and execution time
+- ✅ Unit-tested core (validator, executor, loader, agents) — see [Testing](#-testing)
 
 ---
 
@@ -47,7 +48,7 @@ No hallucinated numbers. Every answer is derived from a real SQL query executed 
         Build Prompt with Schema + Question
                       │
                       ▼
-        Groq Llama 3.3 Generates SQL
+           Groq LLM Generates SQL
                       │
                       ▼
              SQL Validation Layer
@@ -60,7 +61,7 @@ No hallucinated numbers. Every answer is derived from a real SQL query executed 
            Retrieve Query Results
                       │
                       ▼
-    Groq Llama Generates Final Explanation
+     Groq LLM Generates Final Explanation
                       │
                       ▼
       Display:
@@ -106,7 +107,7 @@ No hallucinated numbers. Every answer is derived from a real SQL query executed 
              Prompt Construction
                       │
                       ▼
-             Groq Llama 3.3 (SQL Agent)
+              Groq LLM (SQL Agent)
                       │
                       ▼
               Generated SQL Query
@@ -121,7 +122,7 @@ No hallucinated numbers. Every answer is derived from a real SQL query executed 
                 Query Result Table
                       │
                       ▼
-           Groq Llama (Answer Agent)
+            Groq LLM (Answer Agent)
                       │
                       ▼
       Final Answer + SQL + Result + Logs
@@ -143,7 +144,8 @@ The LLM never answers directly. Instead:
 2. The SQL is validated to allow only safe, read-only operations.
 3. DuckDB **executes** the SQL against the uploaded CSV.
 4. The Answer Agent receives the **actual query result**.
-5. The final response is generated strictly from that computed data.
+5. For simple results (empty / single value / ≤10 rows), the answer is formatted **directly from the data with plain Python** — no LLM call at all, so there is nothing to hallucinate.
+6. Only for larger result sets does the Answer Agent ask the LLM to summarize the real, already-computed rows in plain English — with an explicit instruction not to invent numbers.
 
 This guarantees every numerical answer is derived from the dataset, not guessed by the model.
 
@@ -151,15 +153,18 @@ This guarantees every numerical answer is derived from the dataset, not guessed 
 
 ## ⚙️ Technology Stack
 
-| Component             | Technology                   |
-|------------------------|------------------------------|
-| Programming Language   | Python                       |
-| LLM                     | Groq Llama 3.3 70B           |
-| Data Processing         | Pandas                       |
-| SQL Engine              | DuckDB                       |
-| Frontend                | Streamlit                    |
-| Logging                 | JSON                         |
-| Environment              | Python Virtual Environment   |
+| Component             | Technology                        |
+|------------------------|-----------------------------------|
+| Programming Language   | Python                            |
+| LLM                     | Groq — `openai/gpt-oss-120b`      |
+| Data Processing         | Pandas                            |
+| SQL Engine              | DuckDB                            |
+| Frontend                | Streamlit                         |
+| Testing                 | Pytest                            |
+| Logging                 | JSON                               |
+| Environment              | Python Virtual Environment       |
+
+> **Note:** this project originally used `llama-3.3-70b-versatile`. Groq deprecated that model in June 2026, so the default has been switched to `openai/gpt-oss-120b`. If you have an older `.env`, update the `MODEL` value (see [Configure environment variables](#4-configure-environment-variables)).
 
 ---
 
@@ -170,6 +175,19 @@ csv-data-qa-agent/
 │
 ├── .streamlit/
 │   └── config.toml            # Streamlit theme configuration
+│
+├── conftest.py                 # Makes `app/` importable both as a package
+│                                # and via its internal bare imports (see Testing)
+├── pytest.ini                  # Pytest configuration (pythonpath, testpaths)
+│
+├── tests/
+│   ├── test_answer_agent.py    # AnswerAgent formatting logic (no API calls)
+│   ├── test_config.py          # validate_config() behavior
+│   ├── test_csv_loader.py      # CSV loading, missing/empty file handling
+│   ├── test_duckdb.py          # DuckDB load + query
+│   ├── test_sql_agent.py       # SQLAgent with a mocked Groq client
+│   ├── test_sql_executor.py    # SQL execution against DuckDB
+│   └── test_sql_validator.py   # Every forbidden keyword + edge cases
 │
 └── app/
     ├── main.py                 # CLI entry point
@@ -218,7 +236,7 @@ source venv/bin/activate   # macOS / Linux
 ### 3. Install dependencies
 
 ```bash
-pip install pandas duckdb streamlit groq python-dotenv tabulate
+pip install pandas duckdb streamlit groq python-dotenv tabulate pytest
 ```
 
 ### 4. Configure environment variables
@@ -227,7 +245,7 @@ Create a `.env` file in the project root:
 
 ```env
 GROQ_API_KEY=your_groq_api_key_here
-MODEL=llama-3.3-70b-versatile
+MODEL=openai/gpt-oss-120b
 ```
 
 ### 5. Run the app
@@ -259,6 +277,30 @@ python app/main.py
 
 ---
 
+## 🧪 Testing
+
+The core logic — validation, execution, loading, and both agents — is unit tested with **pytest**, including mocked-LLM tests so the suite runs without a live Groq API key.
+
+```bash
+pip install pytest
+pytest -v
+```
+
+Run from the project root — `conftest.py` and `pytest.ini` handle the path setup automatically (this repo's internal modules use bare imports like `from config import ...`, which only resolve correctly with that setup in place).
+
+**What's covered:**
+
+| File | What it tests |
+|---|---|
+| `test_sql_validator.py` | Every forbidden SQL keyword, markdown-fence stripping, multi-statement rejection, false-positive guard |
+| `test_csv_loader.py` | Valid CSV load, missing file, empty file, file-like objects |
+| `test_duckdb.py` / `test_sql_executor.py` | DataFrame → DuckDB table → query round trip |
+| `test_sql_agent.py` | SQL generation with a mocked Groq response (no network needed) |
+| `test_answer_agent.py` | Deterministic answer formatting for empty / single-value / small-table results |
+| `test_config.py` | `validate_config()` raises without an API key, passes with one |
+
+---
+
 ## 🔒 SQL Safety Rules
 
 **Allowed:** `SELECT`, `FROM`, `WHERE`, `GROUP BY`, `ORDER BY`, `LIMIT`, `HAVING`, `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `WITH`, `DISTINCT`
@@ -281,6 +323,36 @@ Every interaction is saved to `outputs/qa_log.json`, including:
 
 ---
 
+## 📊 Sample Questions & Answers
+
+> Fill this in with real output from a run against your sample dataset before submitting —
+> reviewers will check this against the actual repo, so it needs to reflect a genuine run
+> rather than illustrative text.
+
+| # | Question | Generated SQL | Answer |
+|---|---|---|---|
+| 1 | | | |
+| 2 | | | |
+| 3 | | | |
+| 4 | | | |
+| 5 | | | |
+| 6 | | | |
+| 7 | | | |
+| 8 | | | |
+
+---
+
+## ⚖️ Tradeoffs & Design Decisions
+
+- **SQL generation over direct-answer generation:** the LLM never sees the raw data and never answers a question directly — it only writes SQL. This trades a small amount of flexibility (the model can't "eyeball" an answer for ambiguous questions) for a strong guarantee against hallucinated numbers.
+- **DuckDB over pandas-only computation:** DuckDB lets the agent express arbitrary aggregations as SQL rather than hand-writing pandas logic per question, and scales better than pandas for larger CSVs.
+- **Keyword-blocklist validation over a full SQL parser:** a regex-based blocklist (`SQLValidator`) is simple and fast but not as rigorous as parsing the SQL AST — a determined adversarial prompt could in principle craft SQL that evades a word-boundary check. For a single-user local tool this tradeoff is reasonable; a production multi-tenant version should use a proper SQL parser (e.g. `sqlglot`) to validate structure, not just keywords.
+- **No conversation memory:** each question is answered independently with the schema, not prior Q&A context. This keeps prompts small and answers reproducible, at the cost of not supporting natural follow-up questions like "and last year?".
+- **Small-result answers are template-formatted, not LLM-generated:** for empty, single-value, and ≤10-row results, `AnswerAgent` formats the answer directly in Python rather than calling the LLM. This is faster, cheaper, and removes any hallucination risk for the common case — the LLM is only used to summarize larger result sets in plain English.
+- **What I'd improve with more time:** AST-based SQL validation, conversation memory for follow-up questions, and support for Excel/multi-table joins instead of a single flat CSV table.
+
+---
+
 ## 📄 License
 
-This project is available for personal and educational use. Add your preferred license here (e.g., MIT).
+HARINI BHANDARI

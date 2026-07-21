@@ -1,17 +1,26 @@
 import time
 import streamlit as st
 
-from database.csv_loader import load_csv
-from database.duckdb_manager import DuckDBManager
-from database.schema_reader import SchemaReader
-from database.sql_validator import SQLValidator
-from database.sql_executor import SQLExecutor
+try:
+    from app.database.csv_loader import load_csv
+    from app.database.duckdb_manager import DuckDBManager
+    from app.database.schema_reader import SchemaReader
+    from app.database.sql_validator import SQLValidator
+    from app.database.sql_executor import SQLExecutor
 
-from agent.sql_agent import SQLAgent
-from agent.answer_agent import AnswerAgent
-from agent.question_suggester import QuestionSuggester
+    from app.agent.sql_agent import SQLAgent
+    from app.agent.answer_agent import AnswerAgent
 
+except ImportError:
 
+    from database.csv_loader import load_csv
+    from database.duckdb_manager import DuckDBManager
+    from database.schema_reader import SchemaReader
+    from database.sql_validator import SQLValidator
+    from database.sql_executor import SQLExecutor
+
+    from agent.sql_agent import SQLAgent
+    from agent.answer_agent import AnswerAgent
 # -------------------------------
 # Page Config
 # -------------------------------

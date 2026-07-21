@@ -7,10 +7,14 @@ Uses Python for simple results and the LLM only when needed.
 """
 
 from groq import Groq
-
-from config import GROQ_API_KEY, MODEL_NAME
-from agent.prompts import ANSWER_SYSTEM_PROMPT
-
+try:
+    from app.config import GROQ_API_KEY, MODEL_NAME
+except ImportError:
+    from config import GROQ_API_KEY, MODEL_NAME
+try:
+    from app.agent.prompts import ANSWER_SYSTEM_PROMPT
+except ImportError:
+    from agent.prompts import ANSWER_SYSTEM_PROMPT
 
 class AnswerAgent:
 

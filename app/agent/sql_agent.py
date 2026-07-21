@@ -6,11 +6,14 @@ questions into DuckDB SQL queries.
 """
 
 from groq import Groq
-
-from config import GROQ_API_KEY, MODEL_NAME
-from agent.prompts import SQL_SYSTEM_PROMPT
-
-
+try:
+    from app.config import GROQ_API_KEY, MODEL_NAME
+except ImportError:
+    from config import GROQ_API_KEY, MODEL_NAME
+try:
+    from app.agent.prompts import SQL_SYSTEM_PROMPT
+except ImportError:
+    from agent.prompts import SQL_SYSTEM_PROMPT
 class SQLAgent:
     """
     AI Agent that generates SQL from natural language.

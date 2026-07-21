@@ -6,9 +6,17 @@ Generates intelligent questions based on the database schema.
 
 from groq import Groq
 
-from config import GROQ_API_KEY, MODEL_NAME
+try:
+    from app.config import GROQ_API_KEY, MODEL_NAME
+except ImportError:
+    from config import GROQ_API_KEY, MODEL_NAME
 
 
+try:
+    from app.agent.prompts import QUESTION_SUGGESTION_PROMPT
+except ImportError:
+    from agent.prompts import QUESTION_SUGGESTION_PROMPT
+    
 class QuestionSuggester:
 
     def __init__(self):

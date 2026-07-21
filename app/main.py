@@ -6,20 +6,36 @@ Entry point for the AI CSV Data Q&A Agent.
 
 import time
 
-from config import validate_config
+try:
+    from app.config import validate_config
 
-from database.csv_loader import load_csv
-from database.duckdb_manager import DuckDBManager
-from database.schema_reader import SchemaReader
-from database.sql_validator import SQLValidator
-from database.sql_executor import SQLExecutor
+    from app.database.csv_loader import load_csv
+    from app.database.duckdb_manager import DuckDBManager
+    from app.database.schema_reader import SchemaReader
+    from app.database.sql_validator import SQLValidator
+    from app.database.sql_executor import SQLExecutor
 
-from agent.sql_agent import SQLAgent
-from agent.answer_agent import AnswerAgent
-from agent.question_suggester import QuestionSuggester
+    from app.agent.sql_agent import SQLAgent
+    from app.agent.answer_agent import AnswerAgent
+    from app.agent.question_suggester import QuestionSuggester
 
-from logger.qa_logger import QALogger
+    from app.logger.qa_logger import QALogger
 
+except ImportError:
+
+    from config import validate_config
+
+    from database.csv_loader import load_csv
+    from database.duckdb_manager import DuckDBManager
+    from database.schema_reader import SchemaReader
+    from database.sql_validator import SQLValidator
+    from database.sql_executor import SQLExecutor
+
+    from agent.sql_agent import SQLAgent
+    from agent.answer_agent import AnswerAgent
+    from agent.question_suggester import QuestionSuggester
+
+    from logger.qa_logger import QALogger
 
 def main():
 
