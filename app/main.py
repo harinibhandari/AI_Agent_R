@@ -16,91 +16,151 @@ from database.sql_executor import SQLExecutor
 
 from agent.sql_agent import SQLAgent
 from agent.answer_agent import AnswerAgent
+from agent.question_suggester import QuestionSuggester
 
 from logger.qa_logger import QALogger
 
 
 def main():
-    # Validate configuration
+
+    # -------------------------------------
+    # Validate Environment
+    # -------------------------------------
     validate_config()
 
+    # -------------------------------------
     # Load CSV
+    # -------------------------------------
     csv_path = input("Enter CSV path: ").strip()
 
     df = load_csv(csv_path)
+
     print("\n✅ CSV Loaded Successfully!")
 
+    # -------------------------------------
     # Load into DuckDB
+    # -------------------------------------
     db = DuckDBManager()
     db.load_dataframe(df)
+
     print("✅ Data loaded into DuckDB successfully!")
 
     connection = db.get_connection()
 
-    # Read schema
+    # -------------------------------------
+    # Read Schema
+    # -------------------------------------
     schema_reader = SchemaReader(connection)
     schema = schema_reader.get_schema()
 
-    print("\nDatabase Schema:\n")
+    print("\n" + "=" * 70)
+    print("📋 DATASET SCHEMA")
+    print("=" * 70)
     print(schema)
 
-    # Create reusable objects
+    # -------------------------------------
+    # Suggest Questions
+    # -------------------------------------
+    print("\n🤖 Analyzing dataset...")
+
+    suggester = QuestionSuggester()
+
+    try:
+        questions = suggester.suggest_questions(schema)
+
+        print("\n📌 Suggested Questions\n")
+        print(questions)
+
+    except Exception as e:
+        print(f"\n⚠ Could not generate suggestions: {e}")
+
+    # -------------------------------------
+    # Initialize Components
+    # -------------------------------------
     sql_agent = SQLAgent()
     answer_agent = AnswerAgent()
     executor = SQLExecutor(connection)
     logger = QALogger()
 
-    # Keep asking questions
+    # -------------------------------------
+    # Interactive Loop
+    # -------------------------------------
     while True:
 
-        question = input("\nAsk a question (or type 'exit' to quit): ").strip()
+        question = input(
+            "\nAsk a question (type exit/quit/q to quit): "
+        ).strip()
 
-        if question.lower() == "exit":
+        if question.lower() in ["exit", "quit", "q"]:
             print("\n👋 Thank you for using AI CSV Data Q&A Agent!")
             break
 
         start_time = time.time()
 
         try:
+
+            # ---------------------------------
             # Generate SQL
+            # ---------------------------------
             generated_sql = sql_agent.generate_sql(
                 schema=schema,
                 question=question
             )
 
-            print("\nGenerated SQL:\n")
-            print(generated_sql)
-
+            # ---------------------------------
             # Validate SQL
-            validated_sql = SQLValidator.validate(generated_sql)
+            # ---------------------------------
+            validated_sql = SQLValidator.validate(
+                generated_sql
+            )
 
-            print("\nValidated SQL:\n")
-            print(validated_sql)
-
+            # ---------------------------------
             # Execute SQL
-            result = executor.execute(validated_sql)
+            # ---------------------------------
+            result = executor.execute(
+                validated_sql
+            )
 
-            print("\nQuery Result:\n")
-            print(result)
-
+            # ---------------------------------
             # Generate Answer
+            # ---------------------------------
             answer = answer_agent.generate_answer(
                 question=question,
                 sql=validated_sql,
                 result=result
             )
 
-            print("\nFinal Answer:\n")
-            print(answer)
-
             execution_time = round(
                 (time.time() - start_time) * 1000,
                 2
             )
 
-            print(f"\nExecution Time: {execution_time} ms")
+            # ---------------------------------
+            # Professional Output
+            # ---------------------------------
+            print("\n" + "=" * 70)
+            print("🤖 AI CSV Data Q&A Agent")
+            print("=" * 70)
 
+            print("\n📝 Question:")
+            print(question)
+
+            print("\n💻 Generated SQL:")
+            print(validated_sql)
+
+            print("\n📊 Query Result:")
+            print(result.to_string(index=False))
+
+            print("\n💡 Answer:")
+            print(answer)
+
+            print(f"\n⏱ Execution Time: {execution_time} ms")
+
+            print("=" * 70)
+
+            # ---------------------------------
             # Save Log
+            # ---------------------------------
             logger.log(
                 question=question,
                 sql=validated_sql,
@@ -110,10 +170,18 @@ def main():
 
             print("✅ QA Log saved successfully!")
 
+        except FileNotFoundError:
+            print("\n❌ CSV file not found.")
+
+        except ValueError as e:
+            print(f"\n❌ Validation Error: {e}")
+
         except Exception as e:
             print(f"\n❌ Error: {e}")
 
-    # Close database
+    # -------------------------------------
+    # Close Database
+    # -------------------------------------
     db.close()
 
 

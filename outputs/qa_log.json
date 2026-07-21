@@ -19,5 +19,47 @@
         "generated_sql": "SELECT AVG(Age) FROM data",
         "answer": "The average age is 29.3933.",
         "execution_time_ms": 1132.61
+    },
+    {
+        "timestamp": "2026-07-21 12:44:58",
+        "question": "How many employees are from Bangalore?",
+        "generated_sql": "SELECT COUNT(*) FROM data WHERE City = 'Bangalore'",
+        "answer": "There are 2228 employees from Bangalore.",
+        "execution_time_ms": 1117.79
+    },
+    {
+        "timestamp": "2026-07-21 13:13:01",
+        "question": "What is the average age?",
+        "generated_sql": "SELECT AVG(Age) FROM data",
+        "answer": "avg(Age): 29.39",
+        "execution_time_ms": 733.07
+    },
+    {
+        "timestamp": "2026-07-21 13:13:14",
+        "question": "Show top 10 oldest employees",
+        "generated_sql": "SELECT * FROM data ORDER BY Age DESC LIMIT 10",
+        "answer": "The query returned the following results:\n\nEducation  JoiningYear      City  PaymentTier  Age Gender EverBenched  ExperienceInCurrentDomain  LeaveOrNot\nBachelors         2016 Bangalore            3   41   Male          No                          0           0\n  Masters         2017 Bangalore            3   41 Female          No                          2           1\nBachelors         2015      Pune            3   41   Male          No                          5           0\nBachelors         2017 Bangalore            3   41   Male         Yes                          3           0\nBachelors         2013 New Delhi            3   41 Female          No                          4           0\nBachelors         2017 New Delhi            2   41 Female          No                          3           0\n  Masters         2013 New Delhi            3   41   Male          No                          0           0\nBachelors         2012 Bangalore            3   41   Male          No                          3           0\n  Masters         2018 New Delhi            3   41   Male          No                          2           1\nBachelors         2015      Pune            3   41 Female          No                          3           1",
+        "execution_time_ms": 507.75
+    },
+    {
+        "timestamp": "2026-07-21 13:13:33",
+        "question": "Show top 10 oldest employees",
+        "generated_sql": "SELECT * FROM data ORDER BY Age DESC LIMIT 10",
+        "answer": "The query returned the following results:\n\nEducation  JoiningYear      City  PaymentTier  Age Gender EverBenched  ExperienceInCurrentDomain  LeaveOrNot\nBachelors         2016 Bangalore            3   41   Male          No                          0           0\n  Masters         2017 Bangalore            3   41 Female          No                          2           1\nBachelors         2015      Pune            3   41   Male          No                          5           0\nBachelors         2017 Bangalore            3   41   Male         Yes                          3           0\nBachelors         2013 New Delhi            3   41 Female          No                          4           0\nBachelors         2017 New Delhi            2   41 Female          No                          3           0\n  Masters         2013 New Delhi            3   41   Male          No                          0           0\nBachelors         2012 Bangalore            3   41   Male          No                          3           0\n  Masters         2018 New Delhi            3   41   Male          No                          2           1\nBachelors         2015      Pune            3   41 Female          No                          3           1",
+        "execution_time_ms": 755.05
+    },
+    {
+        "timestamp": "2026-07-21 13:18:44",
+        "question": "",
+        "generated_sql": "SELECT * FROM data",
+        "answer": "The results show information about individuals, including their education, joining year, city, and other details. Only the first 20 rows are shown, but there are a total of 4653 rows in the results. The data includes various cities such as Bangalore, Pune, and New Delhi, and different levels of education like Bachelors and Masters. The results provide a range of information about these individuals, but the full scope of the data is not visible in the first 20 rows.",
+        "execution_time_ms": 1393.88
+    },
+    {
+        "timestamp": "2026-07-21 13:18:45",
+        "question": "",
+        "generated_sql": "SELECT * FROM data",
+        "answer": "The results show information about individuals, including their education, joining year, city, and other details. Only the first 20 rows are shown, but there are a total of 4653 rows in the results. The data includes various cities such as Bangalore, Pune, and New Delhi, and different levels of education like Bachelors and Masters. The results provide a range of information about these individuals, but the full scope of the data is not visible in the first 20 rows.",
+        "execution_time_ms": 757.17
     }
 ]
