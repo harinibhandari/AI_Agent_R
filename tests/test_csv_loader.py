@@ -1,14 +1,11 @@
-import os
-
 from app.database.csv_loader import load_csv
 
 
-def test_csv_loader():
+def test_load_csv():
 
-    csv_path = "sample_data/Employee.csv"
-
-    df = load_csv(csv_path)
+    df = load_csv("sample_data/Employee.csv")
 
     assert df is not None
-    assert len(df) > 0
+    assert not df.empty
     assert "Age" in df.columns
+    assert len(df.columns) > 0

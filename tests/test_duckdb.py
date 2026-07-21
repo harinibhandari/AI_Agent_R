@@ -3,14 +3,11 @@ import pandas as pd
 from app.database.duckdb_manager import DuckDBManager
 
 
-def test_duckdb():
+def test_duckdb_load_dataframe():
 
     df = pd.DataFrame({
-
-        "Name": ["A", "B"],
-
-        "Age": [20, 30]
-
+        "Name": ["Alice", "Bob"],
+        "Age": [22, 30]
     })
 
     db = DuckDBManager()
@@ -19,12 +16,10 @@ def test_duckdb():
 
     conn = db.get_connection()
 
-    result = conn.execute(
-
+    count = conn.execute(
         "SELECT COUNT(*) FROM data"
-
     ).fetchone()[0]
 
-    assert result == 2
+    assert count == 2
 
     db.close()
