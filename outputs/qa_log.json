@@ -1,0 +1,23 @@
+[
+    {
+        "timestamp": "2026-07-21 12:31:46",
+        "question": "How many employees are from Pune?",
+        "generated_sql": "SELECT COUNT(*) FROM data WHERE City = 'Pune'",
+        "answer": "There are 1268 employees from Pune.",
+        "execution_time_ms": 2692.82
+    },
+    {
+        "timestamp": "2026-07-21 12:36:30",
+        "question": "How many employees are from Bangalore?",
+        "generated_sql": "SELECT COUNT(*) FROM data WHERE City = 'Bangalore'",
+        "answer": "There are 2228 employees from Bangalore.",
+        "execution_time_ms": 929.59
+    },
+    {
+        "timestamp": "2026-07-21 12:36:38",
+        "question": "What is the average age?",
+        "generated_sql": "SELECT AVG(Age) FROM data",
+        "answer": "The average age is 29.3933.",
+        "execution_time_ms": 1132.61
+    }
+]
