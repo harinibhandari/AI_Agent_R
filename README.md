@@ -1,340 +1,244 @@
 # 🤖 AI CSV Data Q&A Agent
 
-> Ask questions about any CSV file in plain English.
-> The AI agent converts natural language into SQL, executes it using DuckDB, and returns accurate answers backed by real computation.
+Ask natural language questions about any CSV dataset and get accurate, computation-backed answers — powered by **Groq Llama 3.3 70B** and **DuckDB**.
+
+No hallucinated numbers. Every answer is derived from a real SQL query executed against your actual data.
 
 ---
 
-# 🚀 Overview
+## ✨ Features
 
-AI CSV Data Q&A Agent is an intelligent data analysis assistant that allows users to upload any CSV dataset and ask questions in natural language.
-
-Instead of guessing answers, the agent:
-
-- Understands the dataset schema
-- Generates SQL using an LLM (Groq Llama 3.3 70B)
-- Validates SQL for safety
-- Executes the query using DuckDB
-- Returns both the computed result and a human-readable explanation
-
-This prevents hallucinations because every answer comes directly from executing SQL on the uploaded dataset.
+- 📂 Upload any CSV file (via CLI or Streamlit web UI)
+- 🧠 Automatic schema detection
+- 💡 AI-generated sample questions based on your dataset
+- 🗣️ Natural language → SQL translation using Groq Llama 3.3
+- 🔒 Strict SQL validation — only safe, read-only `SELECT` queries are allowed
+- ⚡ Fast in-memory query execution with DuckDB
+- 📝 Business-friendly natural language answers generated from real query results
+- 📊 Interactive result tables with CSV export (Streamlit UI)
+- 🗂️ Automatic JSON logging of every question, SQL, answer, and execution time
 
 ---
 
-# ✨ Features
+## 🔄 Project Workflow
 
-✅ Upload any CSV file
-
-✅ Automatic schema detection
-
-✅ AI-generated SQL queries
-
-✅ SQL safety validation
-
-✅ DuckDB in-memory execution
-
-✅ Natural language answers
-
-✅ Suggested dataset questions
-
-✅ Query execution time
-
-✅ QA logging
-
-✅ Interactive CLI
-
-✅ Streamlit Web UI
-
----
-
-# 🏗 Project Architecture
-
-```
-                User
-
-                  │
-
-                  ▼
-
-          Upload CSV File
-
-                  │
-
-                  ▼
-
-           Pandas DataFrame
-
-                  │
-
-                  ▼
-
-        DuckDB In-Memory Database
-
-                  │
-
-                  ▼
-
-          Database Schema Reader
-
-                  │
-
-                  ▼
-
-          Natural Language Question
-
-                  │
-
-                  ▼
-
-            Groq LLM (SQL Agent)
-
-                  │
-
-                  ▼
-
-          Generated SQL Query
-
-                  │
-
-                  ▼
-
-           SQL Validator
-
-                  │
-
-                  ▼
-
-          DuckDB Execution
-
-                  │
-
-                  ▼
-
-            Result Table
-
-                  │
-
-                  ▼
-
-          Groq LLM (Answer Agent)
-
-                  │
-
-                  ▼
-
-     Final Answer + Supporting Data
+```text
+                    START
+                      │
+                      ▼
+             Upload CSV Dataset
+                      │
+                      ▼
+        Load CSV using Pandas DataFrame
+                      │
+                      ▼
+      Store Data in DuckDB (In-Memory)
+                      │
+                      ▼
+        Automatically Read Database Schema
+                      │
+                      ▼
+     Generate Sample Questions (Optional)
+                      │
+                      ▼
+       User Enters Natural Language Query
+                      │
+                      ▼
+        Build Prompt with Schema + Question
+                      │
+                      ▼
+        Groq Llama 3.3 Generates SQL
+                      │
+                      ▼
+             SQL Validation Layer
+        (Only Safe SELECT Queries Allowed)
+                      │
+                      ▼
+       Execute SQL using DuckDB Engine
+                      │
+                      ▼
+           Retrieve Query Results
+                      │
+                      ▼
+    Groq Llama Generates Final Explanation
+                      │
+                      ▼
+      Display:
+      • Question
+      • Generated SQL
+      • Result Table
+      • Final Answer
+      • Execution Time
+                      │
+                      ▼
+          Save QA Log (JSON File)
+                      │
+                      ▼
+                     END
 ```
 
 ---
 
-# 📂 Project Structure
+## 🏗️ System Architecture
 
-```
-csv-data-qa-agent
-
-│
-
-├── app
-│
-├── agent
-│     answer_agent.py
-│     sql_agent.py
-│     prompt.py
-│     question_suggester.py
-│
-├── database
-│     csv_loader.py
-│     duckdb_manager.py
-│     schema_reader.py
-│     sql_executor.py
-│     sql_validator.py
-│
-├── logger
-│     qa_logger.py
-│
-├── outputs
-│     qa_log.json
-│
-├── sample_data
-│     Employee.csv
-│
-├── streamlit_app.py
-├── main.py
-├── requirements.txt
-├── README.md
-```
-
----
-
-# 🧠 AI Workflow
-
-```
-Load CSV
-
-↓
-
-Read Schema
-
-↓
-
-Suggest Sample Questions
-
-↓
-
-User Question
-
-↓
-
-Generate SQL using LLM
-
-↓
-
-Validate SQL
-
-↓
-
-Execute in DuckDB
-
-↓
-
-Generate Final Answer
-
-↓
-
-Save QA Log
+```text
+                    User
+                      │
+                      ▼
+           Streamlit UI / CLI
+                      │
+                      ▼
+             CSV File Upload
+                      │
+                      ▼
+               Pandas Loader
+                      │
+                      ▼
+          DuckDB In-Memory Database
+                      │
+        ┌─────────────┴─────────────┐
+        │                           │
+        ▼                           ▼
+  Schema Reader              Question Input
+        │                           │
+        └─────────────┬─────────────┘
+                      ▼
+             Prompt Construction
+                      │
+                      ▼
+             Groq Llama 3.3 (SQL Agent)
+                      │
+                      ▼
+              Generated SQL Query
+                      │
+                      ▼
+              SQL Validation Layer
+                      │
+                      ▼
+             DuckDB SQL Execution
+                      │
+                      ▼
+                Query Result Table
+                      │
+                      ▼
+           Groq Llama (Answer Agent)
+                      │
+                      ▼
+      Final Answer + SQL + Result + Logs
 ```
 
 ---
 
-# 🔒 SQL Validation
+## 🤖 What is the Agent?
 
-Allowed
-
-- SELECT
-- FROM
-- WHERE
-- GROUP BY
-- ORDER BY
-- LIMIT
-- HAVING
-- COUNT
-- SUM
-- AVG
-- MIN
-- MAX
-
-Blocked
-
-- DROP
-- DELETE
-- UPDATE
-- ALTER
-- CREATE
-- INSERT
-- TRUNCATE
-- MERGE
-- CALL
-
-This prevents malicious SQL execution.
+> The **AI CSV Data Q&A Agent** is an intelligent data analysis assistant that accepts a CSV dataset and a natural language question, converts the question into safe SQL using a Large Language Model, executes the SQL on DuckDB, and returns accurate answers backed by real computation instead of hallucinated responses.
 
 ---
 
-# 🧠 Prompt Engineering
+## 🚫 Hallucination Prevention
 
-## SQL Agent
+The LLM never answers directly. Instead:
 
-The SQL generation prompt instructs the LLM to:
+1. The LLM only **generates a SQL query** from the schema and question.
+2. The SQL is validated to allow only safe, read-only operations.
+3. DuckDB **executes** the SQL against the uploaded CSV.
+4. The Answer Agent receives the **actual query result**.
+5. The final response is generated strictly from that computed data.
 
-- Use only provided schema
-- Never invent columns
-- Never invent tables
-- Generate valid DuckDB SQL
-- Return SQL only
-- Generate only SELECT statements
-- Return NOT_POSSIBLE if the question cannot be answered
+This guarantees every numerical answer is derived from the dataset, not guessed by the model.
 
 ---
 
-## Answer Agent
+## ⚙️ Technology Stack
 
-The Answer Agent receives
-
-- Original Question
-- Executed SQL
-- SQL Result
-
-and generates
-
-- concise
-- factual
-- human-readable answers
-
-without changing computed values.
+| Component             | Technology                   |
+|------------------------|------------------------------|
+| Programming Language   | Python                       |
+| LLM                     | Groq Llama 3.3 70B           |
+| Data Processing         | Pandas                       |
+| SQL Engine              | DuckDB                       |
+| Frontend                | Streamlit                    |
+| Logging                 | JSON                         |
+| Environment              | Python Virtual Environment   |
 
 ---
 
-# 🛠 Technologies Used
+## 📁 Project Structure
 
-| Technology | Purpose |
-|------------|----------|
-| Python | Backend |
-| Groq API | LLM |
-| Llama 3.3 70B | SQL Generation |
-| DuckDB | SQL Execution |
-| Pandas | CSV Processing |
-| Streamlit | Web Interface |
-| JSON | QA Logging |
+```text
+csv-data-qa-agent/
+│
+├── .streamlit/
+│   └── config.toml            # Streamlit theme configuration
+│
+└── app/
+    ├── main.py                 # CLI entry point
+    ├── streamlit_app.py        # Streamlit web UI entry point
+    ├── config.py                # Environment variable / config loader
+    │
+    ├── agent/
+    │   ├── sql_agent.py          # Converts NL question → SQL
+    │   ├── answer_agent.py       # Converts SQL result → NL answer
+    │   ├── question_suggester.py # Suggests sample questions from schema
+    │   └── prompts.py             # System prompts for SQL & Answer agents
+    │
+    ├── database/
+    │   ├── csv_loader.py         # Loads CSV (file path or upload) into a DataFrame
+    │   ├── duckdb_manager.py     # In-memory DuckDB connection manager
+    │   ├── schema_reader.py      # Reads and formats table schema
+    │   ├── sql_executor.py       # Executes validated SQL, returns DataFrame
+    │   └── sql_validator.py      # Blocks unsafe SQL keywords/statements
+    │
+    ├── logger/
+    │   └── qa_logger.py          # Logs Q&A history to outputs/qa_log.json
+    │
+    └── utils/
+        └── question_generator.py # Rule-based fallback question generator
+```
 
 ---
 
-# 🚀 Installation
+## 🚀 Getting Started
 
-Clone the repository
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/harinibhandari/AI_Agent_R.git
+git clone <your-repo-url>
+cd csv-data-qa-agent
 ```
 
-Create virtual environment
+### 2. Create a virtual environment
 
 ```bash
 python -m venv venv
+venv\Scripts\activate      # Windows
+source venv/bin/activate   # macOS / Linux
 ```
 
-Activate
-
-Windows
+### 3. Install dependencies
 
 ```bash
-venv\Scripts\activate
+pip install pandas duckdb streamlit groq python-dotenv tabulate
 ```
 
-Install packages
+### 4. Configure environment variables
+
+Create a `.env` file in the project root:
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+MODEL=llama-3.3-70b-versatile
+```
+
+### 5. Run the app
+
+**Streamlit Web UI:**
 
 ```bash
-pip install -r requirements.txt
+streamlit run app/streamlit_app.py
 ```
 
----
-
-# 🔑 Environment Variables
-
-Create
-
-```
-.env
-```
-
-Add
-
-```
-GROQ_API_KEY=YOUR_API_KEY
-MODEL_NAME=llama-3.3-70b-versatile
-```
-
----
-
-# ▶ Run CLI
+**Command Line Interface:**
 
 ```bash
 python app/main.py
@@ -342,177 +246,41 @@ python app/main.py
 
 ---
 
-# 🌐 Run Streamlit UI
+## 🖥️ Usage
 
-```bash
-streamlit run app/streamlit_app.py
-```
-
----
-
-# 📊 Sample Questions
-
-- How many employees are from Bangalore?
-- Show top 10 oldest employees.
-- Average employee age.
-- Which city has the highest employees?
-- Count female employees.
-- Employees with Payment Tier 3.
-- Average experience by city.
-- Show employees older than 30.
-- Count employees who left.
-- Which education level has the highest employees?
+1. Upload a CSV file (sidebar in the web UI, or file path prompt in the CLI).
+2. Review the automatically detected schema and suggested questions.
+3. Type a natural language question, e.g.:
+   - *"What is the average sales per region?"*
+   - *"Which product category has the highest revenue?"*
+   - *"How many orders were placed each month?"*
+4. View the generated SQL, the result table, and a plain-English answer.
+5. Download the result as a CSV (web UI) or check `outputs/qa_log.json` for a full history of every question asked.
 
 ---
 
-# 📋 Sample Output
+## 🔒 SQL Safety Rules
 
-Question
+**Allowed:** `SELECT`, `FROM`, `WHERE`, `GROUP BY`, `ORDER BY`, `LIMIT`, `HAVING`, `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `WITH`, `DISTINCT`
 
-```
-How many employees are from Bangalore?
-```
+**Blocked:** `INSERT`, `UPDATE`, `DELETE`, `DROP`, `ALTER`, `CREATE`, `TRUNCATE`, `MERGE`, `CALL`, `COPY`, `ATTACH`, `DETACH`, `PRAGMA`
 
-Generated SQL
-
-```sql
-SELECT COUNT(*)
-FROM data
-WHERE City='Bangalore';
-```
-
-Result
-
-```
-2228
-```
-
-Answer
-
-```
-There are 2,228 employees from Bangalore.
-```
+If any blocked keyword is detected, execution stops immediately and an error is shown.
 
 ---
 
-# 📁 QA Log
+## 📝 Logging
 
-Each interaction is stored as JSON.
+Every interaction is saved to `outputs/qa_log.json`, including:
 
-Example
-
-```json
-{
-  "question": "How many employees are from Bangalore?",
-  "generated_sql": "SELECT COUNT(*) FROM data WHERE City='Bangalore';",
-  "answer": "There are 2228 employees from Bangalore.",
-  "execution_time_ms": 38
-}
-```
-
----
-
-# 🧪 Testing
-
-The agent has been tested with
-
-- Count Queries
-
-- Filtering
-
-- Top N Queries
-
-- Aggregations
-
-- Sorting
-
-- Average
-
-- Group By
-
-- Min/Max
-
-- Invalid Questions
-
-- SQL Validation
-
----
-
-# 🚫 Hallucination Prevention
-
-This project avoids hallucinations by
-
-✔ Generating SQL only
-
-✔ Executing SQL using DuckDB
-
-✔ Returning actual computed values
-
-✔ Never fabricating numbers
-
-✔ Validating SQL before execution
-
----
-
-# ⚖ Tradeoffs
-
-Due to the 24-hour challenge:
-
-- Single-table datasets are supported.
-- Relational joins are not included.
-- Visualization is minimal.
-- SQL validation is rule-based.
-
-Future Improvements
-
-- Multi-table support
-- Charts
-- Download reports
-- Voice queries
-- Conversational memory
-- Cached schema embeddings
-
----
-
-# 📷 Screenshots
-
-Add screenshots of
-
-- CLI
-- Streamlit UI
+- Timestamp
+- Question asked
 - Generated SQL
-- Results
-
-inside
-
-```
-screenshots/
-```
+- Final answer
+- Execution time (ms)
 
 ---
 
-# 👩‍💻 Author
+## 📄 License
 
-**Harini Bhandari**
-
-AI / ML Engineer
-
-GenAI Engineer
-
-Agentic AI Developer
-
-GitHub
-
-https://github.com/harinibhandari
-
-LinkedIn
-
-https://linkedin.com/in/harinibhandari24
-
----
-
-# ⭐ Conclusion
-
-AI CSV Data Q&A Agent demonstrates how Large Language Models can safely answer natural language questions over structured data using real computation instead of hallucination.
-
-By combining Groq Llama, DuckDB, SQL validation, and natural-language explanation, the system provides trustworthy answers while remaining lightweight, modular, and easy to extend.
+This project is available for personal and educational use. Add your preferred license here (e.g., MIT).
