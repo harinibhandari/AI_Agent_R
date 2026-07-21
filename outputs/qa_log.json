@@ -61,5 +61,26 @@
         "generated_sql": "SELECT * FROM data",
         "answer": "The results show information about individuals, including their education, joining year, city, and other details. Only the first 20 rows are shown, but there are a total of 4653 rows in the results. The data includes various cities such as Bangalore, Pune, and New Delhi, and different levels of education like Bachelors and Masters. The results provide a range of information about these individuals, but the full scope of the data is not visible in the first 20 rows.",
         "execution_time_ms": 757.17
+    },
+    {
+        "timestamp": "2026-07-21 13:59:08",
+        "question": "What is the average age of employees?",
+        "generated_sql": "SELECT AVG(Age) FROM data",
+        "answer": "avg(Age): 29.39",
+        "execution_time_ms": 623.95
+    },
+    {
+        "timestamp": "2026-07-21 14:00:00",
+        "question": "How many employees leave by payment tier?",
+        "generated_sql": "SELECT PaymentTier, COUNT(LeaveOrNot) FROM data GROUP BY PaymentTier",
+        "answer": "The query returned the following results:\n\n PaymentTier  count(LeaveOrNot)\n           1                243\n           2                918\n           3               3492",
+        "execution_time_ms": 661.97
+    },
+    {
+        "timestamp": "2026-07-21 14:00:34",
+        "question": "How many employees leave by payment tier?",
+        "generated_sql": "SELECT PaymentTier, COUNT(LeaveOrNot) FROM data GROUP BY PaymentTier",
+        "answer": "The query returned the following results:\n\n PaymentTier  count(LeaveOrNot)\n           1                243\n           2                918\n           3               3492",
+        "execution_time_ms": 620.07
     }
 ]

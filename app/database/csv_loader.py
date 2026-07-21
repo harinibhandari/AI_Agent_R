@@ -2,38 +2,56 @@
 csv_loader.py
 
 Loads a CSV file into a Pandas DataFrame.
+Supports:
+1. Local file path (CLI)
+2. Streamlit UploadedFile
 """
 
 from pathlib import Path
 import pandas as pd
 
 
-def load_csv(csv_path: str) -> pd.DataFrame:
+def load_csv(csv_source) -> pd.DataFrame:
     """
     Load a CSV file into a Pandas DataFrame.
 
     Args:
-        csv_path (str): Path to the CSV file.
+        csv_source:
+            - str or Path (CLI)
+            - Streamlit UploadedFile (Web UI)
 
     Returns:
-        pd.DataFrame: Loaded dataframe.
+        pd.DataFrame
 
     Raises:
-        FileNotFoundError: If the CSV file doesn't exist.
-        ValueError: If the CSV is empty.
-        Exception: For any other CSV reading errors.
+        FileNotFoundError
+        ValueError
+        Exception
     """
 
-    file_path = Path(csv_path)
-
-    # Check if file exists
-    if not file_path.exists():
-        raise FileNotFoundError(f"CSV file not found: {csv_path}")
-
     try:
-        df = pd.read_csv(file_path)
+        # -----------------------------
+        # Streamlit UploadedFile
+        # -----------------------------
+        if hasattr(csv_source, "read"):
+            df = pd.read_csv(csv_source)
 
-        # Check if dataframe is empty
+        # -----------------------------
+        # Local File Path
+        # -----------------------------
+        else:
+            file_path = Path(csv_source)
+
+            if not file_path.exists():
+                raise FileNotFoundError(
+                    f"CSV file not found: {csv_source}"
+                )
+
+            df = pd.read_csv(file_path)
+
+        # -----------------------------
+        # Empty DataFrame
+        # -----------------------------
         if df.empty:
             raise ValueError("The CSV file is empty.")
 
